@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360">
+  <rect width="480" height="360" fill="#efe6d2"/>
+  <g fill="none" stroke="#1e1a16" stroke-width="1.5" opacity="0.5">
+    <path d="M30 250 c 60 -70 120 -60 170 -20 s 110 40 160 -30 s 60 -70 90 -60"/>
+    <path d="M20 290 c 70 -80 140 -70 200 -30 s 120 50 170 -20 s 50 -60 80 -50"/>
+    <path d="M60 210 c 50 -50 100 -40 140 -10 s 100 30 150 -30"/>
+    <path d="M120 180 c 40 -30 80 -20 110 0 s 70 20 110 -20"/>
+  </g>
+  <path d="M60 300 C 120 230, 190 320, 250 250 S 360 170, 430 90" fill="none" stroke="#1e1a16" stroke-width="2.5" stroke-dasharray="7 9" stroke-linecap="round"/>
+  <circle cx="60" cy="300" r="6" fill="#1e1a16"/>
+  <path d="M418 78 l24 24 M442 78 l-24 24" stroke="#9c1e2f" stroke-width="5" stroke-linecap="round"/>
+  <g transform="translate(70 60)">
+    <circle r="26" fill="none" stroke="#1e1a16" stroke-width="2"/>
+    <path d="M0 -22 L6 0 L0 22 L-6 0 Z" fill="#1e1a16"/>
+    <path d="M-22 0 L0 6 L22 0 L0 -6 Z" fill="none" stroke="#1e1a16" stroke-width="1.5"/>
+    <text y="-34" text-anchor="middle" font-family="Georgia, serif" font-size="14" font-style="italic" fill="#1e1a16">N</text>
+  </g>
+  <text x="240" y="332" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="15" fill="#5b544a">hier is niets &#8212; en toch kom je terug</text>
+</svg>

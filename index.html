@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Krantjuweel</title>
+  <meta name="description" content="Krantjuweel — een krant van vrienden en kunstenaars, uitgespreid over een kaart. Sleep om rond te dwalen, klik om te lezen.">
+  <meta name="theme-color" content="#f2ecdf">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="viewport" id="viewport" aria-label="De kaart van Krantjuweel">
+    <div class="map-sizer" id="sizer">
+      <div class="map" id="map">
+        <header class="masthead">
+          <p class="masthead-line">Nº 1 <span class="orn">◆</span> nazomer 2026 <span class="orn">◆</span> Ruigoord &amp; omstreken</p>
+          <h1 class="masthead-title">Krant<em>juweel</em></h1>
+          <p class="masthead-tagline">Een krant van vrienden &amp; kunstenaars — elk stuk een juweel</p>
+          <p class="masthead-hint">sleep om rond te dwalen <span class="orn">◆</span> klik op een stuk om te lezen</p>
+        </header>
+        <!-- De stukken uit content/articles.js worden hier door app.js neergelegd. -->
+      </div>
+    </div>
+  </main>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="hud hud-left">
+    <span id="count"></span>
+    <a class="hud-link" href="mailto:redactie@krantjuweel.nl?subject=Inzending%20voor%20Krantjuweel">zelf iets insturen?</a>
+  </div>
+  <div class="hud hud-right" role="group" aria-label="Kaartbediening">
+    <button class="hud-btn" id="zoom-out" type="button" aria-label="Uitzoomen">−</button>
+    <button class="hud-btn" id="zoom-in" type="button" aria-label="Inzoomen">+</button>
+    <button class="hud-btn hud-btn-text" id="recenter" type="button">naar het midden</button>
+  </div>
+
+  <dialog class="reader" id="reader" aria-labelledby="reader-title">
+    <button class="reader-close" id="reader-close" type="button" aria-label="Sluiten">×</button>
+    <article class="sheet" id="reader-content"></article>
+  </dialog>
+
+  <!-- Alleen zichtbaar met index.html?edit -->
+  <aside class="editor" id="editor" hidden>
+    <p class="editor-title">Bewerkmodus</p>
+    <p>Sleep de stukken naar hun plek en zet daarna de coördinaten in <code>content/articles.js</code>.</p>
+    <pre id="editor-out">nog niets verplaatst</pre>
+    <button class="hud-btn hud-btn-text" id="editor-copy" type="button">kopieer</button>
+  </aside>
+
+  <script src="content/articles.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

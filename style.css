@@ -1,0 +1,656 @@
+/* Krantjuweel — papier, inkt en één juweelkleur. */
+
+:root {
+  --paper: #f2ecdf;
+  --paper-bright: #faf6ec;
+  --ink: #1e1a16;
+  --ink-soft: #5b544a;
+  --ink-faint: #9a9184;
+  --line: rgba(30, 26, 22, 0.14);
+  --jewel: #9c1e2f;
+  --gold: #b48a2c;
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-text: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --shadow-card: 0 1px 0 rgba(30, 26, 22, 0.05), 0 18px 36px -20px rgba(30, 26, 22, 0.35);
+  --shadow-lift: 0 1px 0 rgba(30, 26, 22, 0.05), 0 32px 56px -24px rgba(30, 26, 22, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- De kaart ---------- */
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-x pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 26, 22, 0.25) transparent;
+}
+
+.viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.viewport::-webkit-scrollbar-thumb {
+  background: rgba(30, 26, 22, 0.25);
+  border-radius: 4px;
+}
+
+.map-sizer {
+  position: relative;
+}
+
+.map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  /* een lichte gloed in het midden en heel vage hoogtelijnen, zodat je voelt waar je bent */
+  background:
+    radial-gradient(circle at 50% 50%, var(--paper-bright) 0, transparent 38%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 159px, rgba(30, 26, 22, 0.055) 159px 160px);
+}
+
+/* ---------- De kop ---------- */
+
+.masthead {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: max-content;
+  text-align: center;
+  pointer-events: none;
+  animation: appear 1.2s var(--ease) both;
+}
+
+.masthead-line,
+.masthead-hint {
+  margin: 0;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.masthead-line {
+  padding: 0.3rem 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.masthead-title {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 6.5rem;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.masthead-title em {
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--jewel);
+}
+
+.masthead-tagline {
+  margin: 0.4rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 3px double var(--ink);
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+.masthead-hint {
+  margin-top: 1.4rem;
+  color: var(--ink-faint);
+}
+
+.orn {
+  margin: 0 0.45em;
+  font-size: 0.65em;
+  vertical-align: 0.2em;
+  color: var(--gold);
+}
+
+/* ---------- De stukken ---------- */
+
+.item {
+  position: absolute;
+  width: var(--w, 16rem);
+  translate: -50% -50%;
+  animation: appear 0.9s var(--ease) both;
+  animation-delay: min(calc(var(--i, 0) * 50ms + 150ms), 2.6s);
+}
+
+.item[data-size="s"] { --w: 12rem; }
+.item[data-size="m"] { --w: 16rem; }
+.item[data-size="l"] { --w: 21rem; }
+
+.item:hover,
+.item:focus-within,
+.item.is-open {
+  z-index: 10;
+}
+
+/* Het zweven zit op een eigen laag, zodat het niet vecht met het centreren en het kantelen. */
+.item-float {
+  animation: float var(--dur, 10s) ease-in-out var(--delay, 0s) infinite;
+}
+
+.item:hover .item-float,
+.item:focus-within .item-float,
+.item.is-open .item-float {
+  animation-play-state: paused;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+@keyframes float {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(var(--dx), calc(var(--dy) * -0.6)); }
+  50%  { transform: translate(calc(var(--dx) * 0.35), var(--dy)); }
+  75%  { transform: translate(calc(var(--dx) * -0.8), calc(var(--dy) * 0.3)); }
+  100% { transform: translate(0, 0); }
+}
+
+.card {
+  position: relative;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  background: var(--paper-bright);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+  rotate: var(--rot, 0deg);
+  transition: rotate 0.5s var(--ease), scale 0.5s var(--ease), box-shadow 0.5s var(--ease);
+  -webkit-user-drag: none;
+}
+
+.card:hover,
+.card:focus-visible {
+  rotate: 0deg;
+  scale: 1.03;
+  box-shadow: var(--shadow-lift);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--jewel);
+  outline-offset: 4px;
+}
+
+/* Artikel: een krantenknipsel */
+
+.card-article {
+  padding: 0.9rem 1rem 1rem;
+}
+
+.card-kicker {
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+.card-kicker .orn {
+  margin: 0 0.35em;
+}
+
+.card-title {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.item[data-size="s"] .card-title { font-size: 1.1rem; }
+.item[data-size="l"] .card-title { font-size: 1.65rem; }
+
+.card-excerpt {
+  display: -webkit-box;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+
+.item[data-size="s"] .card-excerpt {
+  font-size: 0.85rem;
+  -webkit-line-clamp: 4;
+}
+
+.item[data-size="l"] .card-excerpt {
+  -webkit-line-clamp: 7;
+}
+
+.card-more {
+  display: block;
+  margin-top: 0.6rem;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--jewel);
+}
+
+/* Beeld: een afdruk met een stukje plakband */
+
+.card-image {
+  padding: 0.5rem 0.5rem 0.55rem;
+  background: #fff;
+}
+
+.card-image::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.55rem;
+  width: 5rem;
+  height: 1.25rem;
+  translate: -50% 0;
+  rotate: -2deg;
+  background: rgba(226, 208, 150, 0.6);
+  box-shadow: 0 1px 2px rgba(30, 26, 22, 0.12);
+}
+
+.card-image figure {
+  margin: 0;
+}
+
+.card-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-drag: none;
+}
+
+.card-image figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.card-image figcaption span:first-child {
+  font-style: italic;
+}
+
+/* ---------- De lezer ---------- */
+
+.reader {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(46rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  overflow: visible;
+}
+
+.reader::backdrop {
+  background: rgba(242, 236, 223, 0.7);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.reader[open] {
+  animation: sheet-in 0.5s var(--ease);
+}
+
+.reader[open]::backdrop {
+  animation: fade-in 0.5s var(--ease);
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+.sheet {
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 3rem clamp(1.5rem, 6vw, 4rem) 3.5rem;
+  background: var(--paper-bright);
+  border-top: 6px solid var(--jewel);
+  box-shadow: 0 40px 80px -30px rgba(30, 26, 22, 0.5), 0 0 0 1px var(--line);
+}
+
+.reader-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper-bright);
+  color: var(--ink);
+  font: 1.4rem/1 var(--font-display);
+  cursor: pointer;
+}
+
+.reader-close:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.sheet-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+.sheet-title {
+  margin: 0.4rem 0 1.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.sheet-figure {
+  margin: 0 0 1.75rem;
+}
+
+.sheet-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.sheet-figure figcaption {
+  margin-top: 0.6rem;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.sheet-body {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.sheet-body p {
+  margin: 0 0 1em;
+}
+
+.sheet-body > p:first-child::first-letter {
+  float: left;
+  margin: 0.1em 0.12em 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 3.4em;
+  line-height: 0.8;
+  color: var(--jewel);
+}
+
+.sheet-body h2,
+.sheet-body h3,
+.sheet-body h4 {
+  margin: 1.6em 0 0.5em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.sheet-body h2 { font-size: 1.6rem; }
+.sheet-body h3 { font-size: 1.3rem; }
+.sheet-body h4 { font-size: 1.1rem; }
+
+.sheet-body blockquote {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.2em;
+  border-left: 2px solid var(--jewel);
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+.sheet-body blockquote p {
+  margin: 0;
+}
+
+.sheet-body ul,
+.sheet-body ol {
+  margin: 0 0 1em;
+  padding-left: 1.4em;
+}
+
+.sheet-body li {
+  margin: 0.25em 0;
+}
+
+.sheet-body a {
+  color: var(--jewel);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.sheet-body figure {
+  margin: 1.5em 0;
+}
+
+.sheet-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.sheet-body hr {
+  margin: 2em 0;
+  border: 0;
+  text-align: center;
+}
+
+.sheet-body hr::after {
+  content: "◆";
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+
+.sheet-end {
+  margin: 2.5rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+/* ---------- Bediening ---------- */
+
+.hud {
+  position: fixed;
+  bottom: 1rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+.hud-left { left: 1.25rem; }
+.hud-right { right: 1.25rem; }
+
+@media (max-width: 40rem) {
+  .hud-left {
+    top: 1rem;
+    bottom: auto;
+  }
+}
+
+.hud-link {
+  color: var(--jewel);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.hud-link:hover {
+  color: var(--ink);
+}
+
+.hud-btn {
+  height: 2.25rem;
+  min-width: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-bright);
+  color: var(--ink);
+  font: 1.1rem/1 var(--font-display);
+  cursor: pointer;
+  box-shadow: 0 8px 16px -10px rgba(30, 26, 22, 0.5);
+  transition: background 0.2s, color 0.2s;
+}
+
+.hud-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hud-btn-text {
+  padding: 0 0.9rem;
+  font: inherit;
+}
+
+/* Korrel over alles, zodat het papier voelt */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Bewerkmodus (index.html?edit) ---------- */
+
+.editor {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 6;
+  width: min(22rem, calc(100% - 2rem));
+  padding: 1rem 1.1rem;
+  background: var(--paper-bright);
+  border: 1px solid var(--ink);
+  box-shadow: var(--shadow-lift);
+  font-size: 0.9rem;
+}
+
+.editor p {
+  margin: 0 0 0.6rem;
+}
+
+.editor-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.editor code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
+
+.editor pre {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem;
+  max-height: 40vh;
+  overflow: auto;
+  background: var(--paper);
+  font: 0.78rem/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  user-select: text;
+}
+
+body.is-editing .viewport { cursor: default; }
+body.is-editing .card { cursor: move; }
+body.is-editing .item-float { animation: none; }
+body.is-editing .card:hover {
+  rotate: var(--rot, 0deg);
+  scale: 1;
+}
+
+/* ---------- Rust ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .masthead,
+  .item-float,
+  .reader[open],
+  .reader[open]::backdrop {
+    animation: none;
+  }
+
+  .card {
+    transition: none;
+  }
+}
